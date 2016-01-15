@@ -127,18 +127,11 @@
       grid.render();
     });
 
-    grid.onSort.subscribe(function(e, args) {
-      // args.multiColumnSort indicates whether or not this is a multi-column sort.
-      // If it is, args.sortCols will have an array of {sortCol:..., sortAsc:...} objects.
-      // If not, the sort column and direction will be in args.sortCol & args.sortAsc.
-
-      // We'll use a simple comparer function here.
-      var comparer = function(a, b) {
+    var comparer = function(a, b) {
         return (a[args.sortCol.field] > b[args.sortCol.field]) ? 1 : -1;
       }
 
-      // Delegate the sorting to DataView.
-      // This will fire the change events and update the grid.
+    grid.onSort.subscribe(function(e, args) {
       dv.sort(comparer, args.sortAsc);
     });
 
