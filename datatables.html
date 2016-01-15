@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<!-- saved from url=(0040)http://localhost:9000/event/6/scoreboard -->
+<html style="" class=" js flexbox canvas canvastext webgl no-touch geolocation postmessage websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients cssreflections csstransforms no-csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers applicationcache svg inlinesvg smil svgclippaths"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>2013-02-09_ChumpCar_Road_Atlanta</title>
+        <link rel="shortcut icon" type="image/png" href="http://localhost:9000/assets/images/favicon.png">
+
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+
+        <meta property="og:title" content="2013-02-09_ChumpCar_Road_Atlanta">
+        <meta property="og:type" content="website">
+        <meta property="og:site_name" content="raceWatcher.com">
+        
+        <link rel="stylesheet" type="text/css" href="./datatables_files/nivo-slider.css">
+        <link rel="stylesheet" href="/assets/stylesheets/default.css" type="text/css" media="screen">
+        
+        <script src="/assets/javascripts/vendor/jquery-1.9.1.js"></script>
+        <script src="/assets/javascripts/vendor/bootstrap.min.js"></script>
+        <script src="/assets/javascripts/vendor/jquery.dataTables.min.js"></script>
+        <script src="/assets/javascripts/data-tables.js"></script>
+        <script src="/assets/javascripts/vendor/underscore.js"></script>
+
+        <link rel="stylesheet/less" type="text/css" href="/assets/css/main.css" />
+    </head>
+    <body>
+        
+<div id="event_details">
+    <div id="current-event-header">
+        <h1><button onclick="upserts(25)">Upsert 25 rows</button>DataTables Benchmark: <span id="upsert_time"></span></h1>        
+    </div>
+</div>
+
+<table id="com-lti-RaceTracker-view-table-Scoreboard">
+    <thead>
+        <tr>
+            <th>md</th><th>Car</th><th>Team</th><th>Laps</th><th>Fastest</th><th>Class</th><th>Last</th><th>Diff</th><th>Gap</th>            
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<script>
+    var table = document.getElementById("com-lti-RaceTracker-view-table-Scoreboard")
+    var cols = function(asCols) {
+        var res = []
+        for(var i=0; i<asCols.length; i++)
+            res[i] = { sTitle: asCols[i] }
+        return res
+    }
+    var config = {
+    	ID: "com-lti-RaceTracker-view-table-Scoreboard",
+        aoColumns: cols(["md","Car","Team","Laps","Fastest","Class","Last","Diff","Gap"]),
+    	aoColumnDefs: [{"bVisible":false,"aTargets":[0]},{"bSearchable":false,"aTargets":[0]},{"bSortable":false,"aTargets":[0]}],
+    	shouldResize: true,
+    	filter: true,
+    	autoScroll: false,
+        callback: false
+    }
+    table.table = new RaceTracker.DataTable(config);
+    //table.table.sort(1, 'asc');
+
+    var displayer = document.getElementById("upsert_time")
+    var cols = 9
+    var randomId = function() { return Math.floor(Math.random()*100) }
+    var row = function(id) {
+        var array = []
+        array[0] = JSON.stringify({id: id})
+        for(var i=1; i<cols; i++)
+            array[i] = randomId() + ""
+        return array
+    }
+    var upserts = function(num) {
+        var time = 0
+        for(var i=0; i<num; i++)
+            time += upsert()
+        var mean = time / num
+        console.log("Mean time for " + num + " upserts and redraws: " + mean + " ms.")
+        displayer.innerHTML = mean + " ms"
+    }
+    var upsert = function() {
+        return upsertRows([row(randomId()),row(randomId())])
+    }
+    var upsertRows = function(aRows) {
+        var msg = new Object
+        msg.data = JSON.stringify({ upsert: aRows })
+
+        var start = new Date()
+        table.table.receive(msg)
+        var end = new Date()
+        return (end.getTime() - start.getTime())
+    }
+    var initialRows = []
+    for(var i=0; i<100; i++)
+        initialRows[i] = row(i)
+
+    upsertRows(initialRows)
+</script>
+</body></html>

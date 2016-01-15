@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<!-- saved from url=(0040)http://localhost:9000/event/6/scoreboard -->
+<html style="" class=" js flexbox canvas canvastext webgl no-touch geolocation postmessage websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients cssreflections csstransforms no-csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers applicationcache svg inlinesvg smil svgclippaths"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>2013-02-09_ChumpCar_Road_Atlanta</title>
+        <link rel="shortcut icon" type="image/png" href="http://localhost:9000/assets/images/favicon.png">
+
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+
+        <meta property="og:title" content="2013-02-09_ChumpCar_Road_Atlanta">
+        <meta property="og:type" content="website">
+        <meta property="og:site_name" content="raceWatcher.com">
+
+        <link rel="stylesheet" href="/assets/stylesheets/slick.grid.css" type="text/css">        
+
+        <script src="/assets/javascripts/vendor/underscore.js"></script>
+        <script src="/assets/javascripts/vendor/jquery-1.9.1.js"></script>
+        <script src="/assets/javascripts/vendor/jquery.event.drag-2.2.js"></script>
+        <script src="/assets/javascripts/vendor/jquery.event.drop-2.2.js"></script>
+        <script src="/assets/javascripts/vendor/jquery-ui-1.8.16.custom.min.js"></script>
+        <script src="/assets/javascripts/vendor/slick.core.js"></script>
+        <script src="/assets/javascripts/vendor/slick.grid.js"></script>
+        <script src="/assets/javascripts/vendor/slick.dataview.js"></script>
+        <script src="/assets/javascripts/slickGrid.js"></script>        
+    </head>
+    <body>
+
+<style type="text/css">
+    .slick-viewport {
+        -webkit-overflow-scrolling: touch;
+    }
+</style>
+<div id="event_details">
+    <div id="current-event-header">        
+        <h1><button onclick="upserts(250)">Upsert 250 rows</button>SlickGrid Benchmark: <span id="upsert_time"></span></h1>
+        <button onclick="clearGrid()">Clear</button>
+    </div>
+</div>
+
+<input type=text id="txtSearch" style="width:100px;">
+<div id="com-lti-RaceTracker-view-table-Scoreboard" style="width:800px; height:520px;"></div>
+
+<script>    
+
+    // Benchmark-specific code:
+    var col = function(sName) { return { name: sName, field: sName.toLowerCase(), id: sName.toLowerCase(), sortable: true, charWidth: 2 } }
+    var cols = [col("id"), col("Car"), col("Team"), col("Laps"), col("Fastest"), col("Class"), col("Last"), col("Diff"), col("Gap")]        
+
+    var displayer = document.getElementById("upsert_time")
+    var randomId = function() { return Math.floor(Math.random()*100) }
+    var row = function(rowId) {
+        return {
+            id: rowId,
+            metaData: { link: "http://google.com" },
+            car: randomId(),
+            team: randomId(),
+            laps: randomId(),
+            fastest: randomId(),
+            class: randomId(),
+            last: randomId(),
+            diff: randomId(),
+            gap: randomId()
+        }
+    }
+    var upserts = function(num) {
+        var time = 0
+        for(var i=0; i<num; i++)
+            time += upsert()
+        var mean = time / num
+        console.log("Mean time for " + num + " upserts and redraws: " + mean + " ms.")
+        displayer.innerHTML = mean + " ms"
+    }
+    var upsert = function() {
+        return upsertRows([row(randomId()), row(randomId())])
+    }
+    var upsertRows = function(aRows) {
+        var msg = new Object
+        msg.data = JSON.stringify({ upsert: aRows })
+
+        var start = new Date()
+        var obj = JSON.parse(msg.data)
+        table.receive(obj)
+        var end = new Date()
+        return (end.getTime() - start.getTime())
+    }
+    var clearGrid = function() {
+        table.grid.receive({data: JSON.stringify({ clear: true })})
+    }
+    var initialRows = []
+    for(var i=0; i<100; i++)
+        initialRows[i] = row(i)
+
+    var options = {
+        autoHeight: false,
+        autoScroll: {
+            scrollDelay: 75,
+            topPause: 10000,
+            bottomPause: 5000
+        }
+    }
+
+    var elId = "com-lti-RaceTracker-view-table-Scoreboard"
+    var table = document.getElementById(elId)
+    $(function() {
+        RaceWatcher.Grids.new("#" + elId, { cols: cols, options: options }, initialRows)
+    })
+</script>
