@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!-- saved from url=(0040)http://localhost:9000/event/6/scoreboard -->
 <html style="" class=" js flexbox canvas canvastext webgl no-touch geolocation postmessage websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients cssreflections csstransforms no-csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers applicationcache svg inlinesvg smil svgclippaths"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>FixedDataTable benchmark</title>
+        <title>Griddle benchmark</title>
         <link rel="shortcut icon" type="image/png" href="http://localhost:9000/assets/images/favicon.png">
 
         <meta charset="utf-8">
@@ -13,12 +13,14 @@
         <meta property="og:type" content="website">
         <meta property="og:site_name" content="raceWatcher.com">
 
-        <link href="css/fixed-data-table.css" rel="stylesheet" />
+        <link href="css/griddle.css" rel="stylesheet" />
 
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
+        <script src="https://fb.me/react-0.14.6.min.js"></script>
+        <script src="https://fb.me/react-dom-0.14.6.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.24/browser.min.js"></script>
-        <script src="https://fb.me/react-0.14.6.js"></script>
-        <script src="https://fb.me/react-dom-0.14.6.js"></script>        
-        <script src="js/fixed-data-table.js"></script>
+        <script src="js/griddle.js"></script>
+        <script src="js/GriddleWithCallback.js"></script>
     </head>
     <body>
 
@@ -29,7 +31,7 @@
 </style>
 <div id="event_details">
     <div id="current-event-header">        
-        <h1><button onclick="upserts(20)">Upsert 20x2 rows</button>FixedDataTable Benchmark: <span id="upsert_time"></span></h1>
+        <h1><button onclick="upserts(20)">Upsert 20x2 rows</button>Griddle Benchmark: <span id="upsert_time"></span></h1>
         <button onclick="clearGrid()">Clear</button>
     </div>
 </div>
@@ -110,34 +112,8 @@
     }
 
     var grid
-    var Table = FixedDataTable.Table
-    var Column = FixedDataTable.Column
-    var Cell = FixedDataTable.Cell
     var container = document.getElementById("bench-grid")
     benchmark(function() {
-        grid = ReactDOM.render(
-            <Table
-                rowHeight={50}
-                rowsCount={gridRows.length}
-                width={5000}
-                height={5000}
-                headerHeight={50}>
-            <Column
-                header={<Cell>Col 1</Cell>}
-                cell={<Cell>Column 1 static content</Cell>}
-                width={75}
-            />
-            <Column
-                header={<Cell>Col 2</Cell>}
-                cell={({rowIndex, ...props}) => (
-                <Cell {...props}>
-                    {gridRows[rowIndex][1]}
-                </Cell>
-                )}
-                width={75}
-            />
-          </Table>,
-          container
-        )
+        grid = ReactDOM.render(<Griddle results={gridRows} resultsPerPage={1000} />, container);
     })
 </script>

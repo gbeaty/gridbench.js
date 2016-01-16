@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!-- saved from url=(0040)http://localhost:9000/event/6/scoreboard -->
 <html style="" class=" js flexbox canvas canvastext webgl no-touch geolocation postmessage websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients cssreflections csstransforms no-csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers applicationcache svg inlinesvg smil svgclippaths"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>2013-02-09_ChumpCar_Road_Atlanta</title>
+        <title>SlickGrid benchmark</title>
         <link rel="shortcut icon" type="image/png" href="http://localhost:9000/assets/images/favicon.png">
 
         <meta charset="utf-8">
@@ -34,7 +34,7 @@
 </style>
 <div id="event_details">
     <div id="current-event-header">        
-        <h1><button onclick="upserts(250)">Upsert 250 rows</button>SlickGrid Benchmark: <span id="upsert_time"></span></h1>
+        <h1><button onclick="upserts(250)">Upsert 250x2 rows</button>SlickGrid Benchmark: <span id="upsert_time"></span></h1>
         <button onclick="clearGrid()">Clear</button>
     </div>
 </div>
@@ -64,6 +64,11 @@
             gap: randomId()
         }
     }
+    var benchmark = function(f) {
+        var start = new Date()
+        f()
+        displayer.innerHTML = (new Date() - start) + " ms"
+    }
     var upserts = function(num) {
         var time = 0
         for(var i=0; i<num; i++)
@@ -83,15 +88,16 @@
         var obj = JSON.parse(msg.data)
 
         var i = aRows.length - 1
+        dv.beginUpdate()
         while(i >= 0) {
             var row = aRows[i]
-            dv.beginUpdate()
+            
             dv.deleteItem(row.id)
-            dv.addItem(row)
-            dv.endUpdate()
+            dv.addItem(row)            
 
             i--
         }
+        dv.endUpdate()
 
         var end = new Date()
         return (end.getTime() - start.getTime())
@@ -113,34 +119,37 @@
         }
     }
 
-    var dv = new Slick.Data.DataView()
-    var gridEl = document.getElementById("bench-table")
-    var grid = new Slick.Grid(gridEl, dv, cols, options)
+    var dv
+    benchmark(function() {
+        dv = new Slick.Data.DataView()
+        var gridEl = document.getElementById("bench-table")
+        var grid = new Slick.Grid(gridEl, dv, cols, options)
 
-    dv.onRowCountChanged.subscribe(function (e, args) {
-      grid.updateRowCount();
-      grid.render();
-    });
+        dv.onRowCountChanged.subscribe(function (e, args) {
+          grid.updateRowCount();
+          grid.render();
+        });
 
-    dv.onRowsChanged.subscribe(function (e, args) {
-      grid.invalidateRows(args.rows);
-      grid.render();
-    });
+        dv.onRowsChanged.subscribe(function (e, args) {
+          grid.invalidateRows(args.rows);
+          grid.render();
+        });
 
-    grid.onSort.subscribe(function(e, args) {
-      // args.multiColumnSort indicates whether or not this is a multi-column sort.
-      // If it is, args.sortCols will have an array of {sortCol:..., sortAsc:...} objects.
-      // If not, the sort column and direction will be in args.sortCol & args.sortAsc.
+        grid.onSort.subscribe(function(e, args) {
+          // args.multiColumnSort indicates whether or not this is a multi-column sort.
+          // If it is, args.sortCols will have an array of {sortCol:..., sortAsc:...} objects.
+          // If not, the sort column and direction will be in args.sortCol & args.sortAsc.
 
-      // We'll use a simple comparer function here.
-      var comparer = function(a, b) {
-        return (a[args.sortCol.field] > b[args.sortCol.field]) ? 1 : -1;
-      }
+          // We'll use a simple comparer function here.
+          var comparer = function(a, b) {
+            return (a[args.sortCol.field] > b[args.sortCol.field]) ? 1 : -1;
+          }
 
-      // Delegate the sorting to DataView.
-      // This will fire the change events and update the grid.
-      dv.sort(comparer, args.sortAsc);
-    });
+          // Delegate the sorting to DataView.
+          // This will fire the change events and update the grid.
+          dv.sort(comparer, args.sortAsc);
+        });
 
-    dv.setItems(initialRows)
+        dv.setItems(initialRows)
+    })
 </script>
