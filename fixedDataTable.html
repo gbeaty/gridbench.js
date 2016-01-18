@@ -74,6 +74,7 @@
     var upsert = function() {
         return upsertRows([row(randomId()), row(randomId())])
     }
+    var vdom, container
     var upsertRows = function(aRows) {
         var msg = new Object
         msg.data = JSON.stringify({ upsert: aRows })
@@ -89,6 +90,8 @@
         }
 
         grid.setProps({results: gridRows})
+        // ReactDOM.render(vdom, container)
+        // grid.forceUpdate()
 
         var end = new Date()
         return (end.getTime() - start.getTime())
@@ -96,7 +99,7 @@
     var clearGrid = function() {
         grid.setProps({results: []})
     }
-    var gridRows = []
+    var gridRows = window.gridRows = []
     for(var i=0; i<100; i++)
         gridRows[i] = row(i)
 
@@ -113,31 +116,82 @@
     var Table = FixedDataTable.Table
     var Column = FixedDataTable.Column
     var Cell = FixedDataTable.Cell
-    var container = document.getElementById("bench-grid")
+    var rowWidth = 60
+    container = document.getElementById("bench-grid")
+    
+    vdom = <Table
+            rowHeight={50}
+            rowsCount={gridRows.length}
+            width={rowWidth * 9}
+            height={500}
+            headerHeight={50}
+            rows = {gridRows}>
+        <Column
+            header={<Cell>id</Cell>}
+            cell={({rowIndex, ...props}) => (
+                <Cell>{gridRows[rowIndex].id}</Cell>
+            )}
+            width={rowWidth}
+        />
+        <Column
+            header={<Cell>car</Cell>}
+            cell={({rowIndex, ...props}) => (
+                <Cell>{gridRows[rowIndex].car}</Cell>
+            )}
+            width={rowWidth}
+        />
+        <Column
+            header={<Cell>team</Cell>}
+            cell={({rowIndex, ...props}) => (
+                <Cell>{gridRows[rowIndex].team}</Cell>
+            )}
+            width={rowWidth}
+        />
+        <Column
+            header={<Cell>laps</Cell>}
+            cell={({rowIndex, ...props}) => (
+                <Cell>{gridRows[rowIndex].laps}</Cell>
+            )}
+            width={rowWidth}
+        />
+        <Column
+            header={<Cell>fastest</Cell>}
+            cell={({rowIndex, ...props}) => (
+                <Cell>{gridRows[rowIndex].fastest}</Cell>
+            )}
+            width={rowWidth}
+        />
+        <Column
+            header={<Cell>class</Cell>}
+            cell={({rowIndex, ...props}) => (
+                <Cell>{gridRows[rowIndex].class}</Cell>
+            )}
+            width={rowWidth}
+        />
+        <Column
+            header={<Cell>last</Cell>}
+            cell={({rowIndex, ...props}) => (
+                <Cell>{gridRows[rowIndex].last}</Cell>
+            )}
+            width={rowWidth}
+        />
+        <Column
+            header={<Cell>diff</Cell>}
+            cell={({rowIndex, ...props}) => (
+                <Cell>{gridRows[rowIndex].diff}</Cell>
+            )}
+            width={rowWidth}
+        />
+        <Column
+            header={<Cell>gap</Cell>}
+            cell={({rowIndex, ...props}) => (
+                <Cell>{gridRows[rowIndex].gap}</Cell>
+            )}
+            width={rowWidth}
+        />
+    </Table>
+
     benchmark(function() {
-        grid = ReactDOM.render(
-            <Table
-                rowHeight={50}
-                rowsCount={gridRows.length}
-                width={5000}
-                height={5000}
-                headerHeight={50}>
-            <Column
-                header={<Cell>Col 1</Cell>}
-                cell={<Cell>Column 1 static content</Cell>}
-                width={75}
-            />
-            <Column
-                header={<Cell>Col 2</Cell>}
-                cell={({rowIndex, ...props}) => (
-                <Cell {...props}>
-                    {gridRows[rowIndex][1]}
-                </Cell>
-                )}
-                width={75}
-            />
-          </Table>,
-          container
-        )
+        window.grid = grid = ReactDOM.render(vdom, container)
     })
 </script>

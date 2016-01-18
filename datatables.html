@@ -72,6 +72,11 @@
             array[i] = randomId() + ""
         return array
     }
+    var benchmark = function(f) {
+        var start = new Date()
+        f()
+        displayer.innerHTML = (new Date() - start) + " ms"
+    }
     var upserts = function(num) {
         var time = 0
         for(var i=0; i<num; i++)
@@ -96,6 +101,8 @@
     for(var i=0; i<100; i++)
         initialRows[i] = row(i)
 
-    upsertRows(initialRows)
+    benchmark(function() {
+        upsertRows(initialRows)
+    })    
 </script>
 </body></html>

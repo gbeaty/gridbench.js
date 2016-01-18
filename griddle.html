@@ -20,7 +20,7 @@
         <script src="https://fb.me/react-dom-0.14.6.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.24/browser.min.js"></script>
         <script src="js/griddle.js"></script>
-        <script src="js/GriddleWithCallback.js"></script>
+        
     </head>
     <body>
 
@@ -91,6 +91,7 @@
         }
 
         grid.setProps({results: gridRows})
+        // grid.forceUpdate()
 
         var end = new Date()
         return (end.getTime() - start.getTime())
@@ -99,21 +100,15 @@
         grid.setProps({results: []})
     }
     var gridRows = []
+    window.gridRows = gridRows
     for(var i=0; i<100; i++)
         gridRows[i] = row(i)
 
-    var options = {
-        autoHeight: false,
-        autoScroll: {
-            scrollDelay: 75,
-            topPause: 10000,
-            bottomPause: 5000
-        }
-    }
-
     var grid
-    var container = document.getElementById("bench-grid")
+    var container = window.gridContainer = document.getElementById("bench-grid")
+    var rowMetadata = { key: "id" }
+    window.vdom = <Griddle results={gridRows} bodyHeight={500} resultsPerPage={20} rowMetadata={rowMetadata} />
     benchmark(function() {
-        grid = ReactDOM.render(<Griddle results={gridRows} resultsPerPage={1000} />, container);
+        window.grid = grid = ReactDOM.render(vdom, container);
     })
 </script>
